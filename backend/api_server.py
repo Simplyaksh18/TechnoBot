@@ -724,4 +724,8 @@ if __name__ == "__main__":
     else:
         import_path = f"{module_name}:app"
 
-    uvicorn.run(import_path, host="0.0.0.0", port=8000, reload=True)
+    port_env = int(os.environ.get("PORT", 8000))
+
+    # 2. Pass the port variable into uvicorn, and disable reload on production
+    is_local = os.environ.get("PORT") is None
+    uvicorn.run(import_path, host="0.0.0.0", port=port_env, reload=is_local)
