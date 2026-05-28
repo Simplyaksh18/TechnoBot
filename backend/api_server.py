@@ -115,9 +115,18 @@ def _render_comparison_markdown(data: dict) -> str:
 
 app = FastAPI(title="TechnoBot API")
 
+allowed_origins = [
+    origin.strip()
+    for origin in os.getenv(
+        "CORS_ALLOWED_ORIGINS",
+        "http://localhost:3000,https://techno-bot-six.vercel.app",
+    ).split(",")
+    if origin.strip()
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["POST", "GET", "DELETE", "OPTIONS"],
     allow_headers=["*"],

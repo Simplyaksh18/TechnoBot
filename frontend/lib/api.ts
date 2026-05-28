@@ -1,8 +1,8 @@
 // ─── Backend URL ─────────────────────────────────────────────────────────────
-// Priority: NEXT_PUBLIC_API_BASE env var → hard default (localhost:8000).
+// Priority: NEXT_PUBLIC_API_BASE env var → production backend default.
 // Set NEXT_PUBLIC_API_BASE in .env.local for local dev overrides.
 export const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:8000";
+  process.env.NEXT_PUBLIC_API_BASE ?? "https://technobot-82sa.onrender.com";
 
 // ─── Shared types ─────────────────────────────────────────────────────────────
 
@@ -17,10 +17,10 @@ export type SendPayload = string | { message: string; acknowledge?: boolean };
  *   followup — single contextual follow-up question ("" when absent)
  */
 export interface ChatApiResponse {
-  status:   "ok" | "partial" | "unavailable";
+  status: "ok" | "partial" | "unavailable";
   analysis: string;
   evidence: Record<string, string>;
-  insight:  Record<string, string>;
+  insight: Record<string, string>;
   followup: string;
 }
 
@@ -52,9 +52,9 @@ export async function sendMessage(
 
   try {
     const res = await fetch(`${API_BASE}/chat`, {
-      method:  "POST",
+      method: "POST",
       headers: { "Content-Type": "application/json" },
-      body:    JSON.stringify(body),
+      body: JSON.stringify(body),
     });
 
     if (!res.ok) {
@@ -71,7 +71,7 @@ export async function sendMessage(
     if (err instanceof TypeError && err.message === "Failed to fetch") {
       console.error(
         `[TechnoBot/api] POST /chat — cannot reach backend at ${API_BASE}. ` +
-        "Is the backend running on port 8000?"
+          "Is the backend running on port 8000?",
       );
     } else {
       console.error("[TechnoBot/api] POST /chat error:", err);
@@ -99,15 +99,15 @@ export async function sendMessageStream(
 
   try {
     res = await fetch(`${API_BASE}/chat-stream`, {
-      method:  "POST",
+      method: "POST",
       headers: { "Content-Type": "application/json" },
-      body:    JSON.stringify({ chat_id: chatId, message }),
+      body: JSON.stringify({ chat_id: chatId, message }),
     });
   } catch (err) {
     if (err instanceof TypeError && err.message === "Failed to fetch") {
       console.error(
         `[TechnoBot/api] POST /chat-stream — cannot reach backend at ${API_BASE}. ` +
-        "Is the backend running on port 8000?"
+          "Is the backend running on port 8000?",
       );
     } else {
       console.error("[TechnoBot/api] POST /chat-stream connection error:", err);
@@ -129,10 +129,10 @@ export async function sendMessageStream(
     return full;
   }
 
-  const reader  = res.body.getReader();
+  const reader = res.body.getReader();
   const decoder = new TextDecoder();
   let accumulated = "";
-  let buffer      = "";
+  let buffer = "";
 
   while (true) {
     const { done, value } = await reader.read();
@@ -149,7 +149,7 @@ export async function sendMessageStream(
       try {
         const payload = JSON.parse(dataLine.slice(6)) as {
           token?: string;
-          done?:  boolean;
+          done?: boolean;
         };
         const token = payload.token ?? "";
         if (token) {
