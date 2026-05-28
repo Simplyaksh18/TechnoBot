@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useAuth } from "@/lib/auth-context";
 import { useTheme } from "@/lib/theme-context";
 import { useRouter } from "next/navigation";
@@ -38,9 +39,21 @@ export function Navbar() {
         {user && (
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-linear-to-br from-primary to-accent flex items-center justify-center text-xl font-semibold ring-2 ring-primary/30">
-                {user.emoji}
-              </div>
+              {/* Google profile photo (when available) or emoji avatar */}
+              {user.picture ? (
+                <Image
+                  src={user.picture}
+                  alt={user.username}
+                  width={44}
+                  height={44}
+                  className="w-11 h-11 rounded-full object-cover ring-2 ring-primary/30"
+                  referrerPolicy="no-referrer"
+                />
+              ) : (
+                <div className="w-12 h-12 rounded-full bg-linear-to-br from-primary to-accent flex items-center justify-center text-xl font-semibold ring-2 ring-primary/30">
+                  {user.emoji}
+                </div>
+              )}
               <span className="text-sm font-medium text-foreground">
                 {user.username}
               </span>

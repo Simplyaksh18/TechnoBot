@@ -4,14 +4,16 @@ import type React from "react"
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { GoogleLogin } from "@react-oauth/google"
 import { useAuth } from "@/lib/auth-context"
+import type { GoogleUserPayload } from "@/lib/auth-context"
 import Link from "next/link"
 
 const EMOJI_OPTIONS = ["📊", "📈", "📉", "💹", "🎯", "🔍", "⚡", "💡"]
 
 export default function RegisterPage() {
   const router = useRouter()
-  const { register, isLoading } = useAuth()
+  const { register, loginWithGoogle, isLoading } = useAuth()
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -45,6 +47,31 @@ export default function RegisterPage() {
       router.push("/chat")
     } catch (err) {
       setError(err instanceof Error ? err.message : "Registration failed")
+    }
+  }
+
+  /**
+   * Handles a successful Google popup credential during sign-up.
+   * Uses the same loginWithGoogle path as the login page — Google accounts
+   * don't require a separate registration step.
+   */
+  const handleGoogleSuccess = (credentialResponse: { credential?: string }) => {
+    try {
+      const token = credentialResponse.credential
+      if (!token) throw new Error("No credential returned")
+
+      const decoded = JSON.parse(
+        atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/"))
+      ) as GoogleUserPayload
+
+      console.log("GOOGLE TOKEN:", token.slice(0, 20) + "…")
+      console.log("USER:", { name: decoded.name, email: decoded.email })
+
+      loginWithGoogle(decoded)
+      router.push("/chat")
+    } catch (err) {
+      console.error("[GoogleSignup] decode error:", err)
+      setError("Google sign-up failed — please try again.")
     }
   }
 
@@ -143,6 +170,33 @@ export default function RegisterPage() {
             </button>
           </form>
 
+          {/* ── Google Sign-Up ─────────────────────────────────────────────── */}
+          <div className="mt-6 pt-6 border-t border-border">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex-1 h-px bg-border" />
+              <span className="text-xs text-muted-foreground font-medium tracking-wide uppercase">
+                or sign up with
+              </span>
+              <div className="flex-1 h-px bg-border" />
+            </div>
+
+            <div className="flex justify-center">
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={() => {
+                  console.log("Google Signup Failed")
+                  setError("Google sign-up failed — please try again.")
+                }}
+                theme="outline"
+                size="large"
+                text="signup_with"
+                shape="rectangular"
+                width="368"
+              />
+            </div>
+          </div>
+
+          {/* ── Already have an account ─────────────────────────────────────── */}
           <div className="mt-6 pt-6 border-t border-border">
             <p className="text-sm text-muted-foreground text-center">Already have an account?</p>
             <Link href="/login" className="block text-center text-primary hover:underline font-medium mt-2">

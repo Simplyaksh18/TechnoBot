@@ -8,6 +8,16 @@ export interface User {
   username: string
   email: string
   emoji: string
+  /** Profile photo URL — populated for Google-authenticated users */
+  picture?: string
+}
+
+/** Decoded fields from a Google ID token that we use to build a User. */
+export interface GoogleUserPayload {
+  sub: string
+  name: string
+  email: string
+  picture: string
 }
 
 interface AuthContextType {
@@ -15,6 +25,7 @@ interface AuthContextType {
   isLoading: boolean
   login: (email: string, password: string) => Promise<void>
   register: (username: string, email: string, password: string, emoji: string) => Promise<void>
+  loginWithGoogle: (decoded: GoogleUserPayload) => void
   logout: () => void
 }
 
@@ -80,12 +91,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  /**
+   * Called after a successful Google One-Tap / popup sign-in.
+   * Decodes the Google ID token fields and stores a User compatible with the
+   * existing email/password session shape — no backend call required.
+   */
+  const loginWithGoogle = (decoded: GoogleUserPayload) => {
+    const newUser: User = {
+      id:       decoded.sub,
+      username: decoded.name,
+      email:    decoded.email,
+      emoji:    "🌐",
+      picture:  decoded.picture,
+    }
+    console.log("GOOGLE AUTH:", { name: newUser.username, email: newUser.email })
+    setUser(newUser)
+    localStorage.setItem("user", JSON.stringify(newUser))
+  }
+
   const logout = () => {
     setUser(null)
     localStorage.removeItem("user")
   }
 
-  return <AuthContext.Provider value={{ user, isLoading, login, register, logout }}>{children}</AuthContext.Provider>
+  return (
+    <AuthContext.Provider value={{ user, isLoading, login, register, loginWithGoogle, logout }}>
+      {children}
+    </AuthContext.Provider>
+  )
 }
 
 export function useAuth() {

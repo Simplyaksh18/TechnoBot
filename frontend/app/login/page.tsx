@@ -5,12 +5,14 @@ import type React from "react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { GoogleLogin } from "@react-oauth/google";
 import { useAuth } from "@/lib/auth-context";
+import type { GoogleUserPayload } from "@/lib/auth-context";
 import Link from "next/link";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, isLoading } = useAuth();
+  const { login, loginWithGoogle, isLoading } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -24,6 +26,32 @@ export default function LoginPage() {
       router.push("/chat");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");
+    }
+  };
+
+  /**
+   * Handles a successful Google popup credential response.
+   * Decodes the JWT payload (public, not sensitive), extracts profile
+   * fields, persists to localStorage via loginWithGoogle, then navigates.
+   */
+  const handleGoogleSuccess = (credentialResponse: { credential?: string }) => {
+    try {
+      const token = credentialResponse.credential;
+      if (!token) throw new Error("No credential returned");
+
+      // Decode the public JWT payload — no verification needed client-side
+      const decoded = JSON.parse(
+        atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/"))
+      ) as GoogleUserPayload;
+
+      console.log("GOOGLE TOKEN:", token.slice(0, 20) + "…");
+      console.log("USER:", { name: decoded.name, email: decoded.email });
+
+      loginWithGoogle(decoded);
+      router.push("/chat");
+    } catch (err) {
+      console.error("[GoogleLogin] decode error:", err);
+      setError("Google sign-in failed — please try again.");
     }
   };
 
@@ -97,6 +125,33 @@ export default function LoginPage() {
             </button>
           </form>
 
+          {/* ── Google Sign-In ─────────────────────────────────────────────── */}
+          <div className="mt-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex-1 h-px bg-white/15" />
+              <span className="text-xs text-white/45 font-medium tracking-wide uppercase">
+                or continue with
+              </span>
+              <div className="flex-1 h-px bg-white/15" />
+            </div>
+
+            <div className="flex justify-center">
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={() => {
+                  console.log("Google Login Failed");
+                  setError("Google sign-in failed — please try again.");
+                }}
+                theme="filled_black"
+                size="large"
+                text="signin_with"
+                shape="rectangular"
+                width="368"
+              />
+            </div>
+          </div>
+
+          {/* ── Create account link ─────────────────────────────────────────── */}
           <div className="mt-6 pt-6 border-t border-white/10">
             <p className="text-sm text-white/65 text-center mb-4">
               Don't have an account?
