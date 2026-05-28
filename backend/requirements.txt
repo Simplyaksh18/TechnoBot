@@ -21,3 +21,6 @@ certifi>=2024.12.14             # CA bundle used by yfinance; keep updated
 
 # ── Environment / config ─────────────────────────────────────────────────────
 python-dotenv>=1.0.0            # optional: loads .env on startup
+
+python-multipart>=0.0.21
+multipart
