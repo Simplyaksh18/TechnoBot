@@ -22,6 +22,13 @@ os.environ['PYTHONUTF8'] = '1'
 # Non-fatal: validation prints warnings/errors but does not prevent the server
 # from starting.  This lets VS Code / uvicorn --reload continue to work even
 # when internet is temporarily unavailable.
+
+# Force-register python-multipart into the system namespace for FastAPI
+try:
+    __import__('multipart')
+except ImportError:
+    # Manually tell Python that python-multipart satisfies 'multipart'
+    sys.modules['multipart'] = __import__('python_multipart')
 try:
     from startup import validate_environment as _validate_env
     _validate_env(strict=False)
