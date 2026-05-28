@@ -1,4 +1,4 @@
-# 🚀 🤖TechnoBot | An AI Technical Analysis Mentor Chatbot
+🤖TechnoBot | An AI Technical Analysis Mentor Chatbot
 
 Many beginners struggle with Technical Analysis (TA) because most platforms assume prior knowledge and provide indicators without proper explanation. At the same time, many AI trading bots generate vague outputs or directly suggest buying/selling stocks without helping users understand the reasoning behind the analysis.
 
@@ -246,6 +246,6 @@ TechnoBot was designed to solve a real-world learning problem in trading — mak
 
 ---
 
-🌐 Live Demo: https://techno-bot-six.vercel.app/login
+## 🌐 Live Demo: https://techno-bot-six.vercel.app/login
 
 Built to demonstrate production-level engineering, resilient system design, and applied AI beyond tutorial projects.
