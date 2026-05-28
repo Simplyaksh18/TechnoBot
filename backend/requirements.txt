@@ -1,0 +1,23 @@
+# TechnoBot backend dependencies
+# Install with: pip install -r requirements.txt
+#
+# Python 3.10+ is required (union type syntax X | Y used throughout).
+
+# ── Web framework ─────────────────────────────────────────────────────────────
+fastapi>=0.115.0
+uvicorn[standard]>=0.34.0       # includes websockets, httptools, watchfiles
+pydantic>=2.11.0
+
+# ── Market data ───────────────────────────────────────────────────────────────
+yfinance>=1.0                   # NOTE: 1.0 changed column format to MultiIndex
+                                # nifty_fetcher.py handles both old and new format
+
+# ── Data processing ───────────────────────────────────────────────────────────
+pandas>=2.1.0
+requests>=2.31.0
+
+# ── SSL / HTTP ────────────────────────────────────────────────────────────────
+certifi>=2024.12.14             # CA bundle used by yfinance; keep updated
+
+# ── Environment / config ─────────────────────────────────────────────────────
+python-dotenv>=1.0.0            # optional: loads .env on startup

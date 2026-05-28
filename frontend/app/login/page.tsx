@@ -1,0 +1,137 @@
+"use client";
+
+import type React from "react";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { useAuth } from "@/lib/auth-context";
+import Link from "next/link";
+
+export default function LoginPage() {
+  const router = useRouter();
+  const { login, isLoading } = useAuth();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+
+    try {
+      await login(email, password);
+      router.push("/chat");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Login failed");
+    }
+  };
+
+  return (
+    <div className="relative min-h-screen overflow-hidden bg-slate-950 flex items-center justify-center px-4 py-8">
+      <div className="absolute inset-0">
+        <Image
+          src="/data-analyst.jpg"
+          alt="TechnoBot sign in background"
+          fill
+          priority
+          className="object-cover object-center opacity-80"
+        />
+        <div className="absolute inset-0 bg-linear-to-br from-slate-950/65 via-slate-950/35 to-slate-900/50" />
+      </div>
+
+      <div className="relative w-full max-w-md">
+        <div className="rounded-2xl border border-white/10 bg-slate-950/45 backdrop-blur-md shadow-2xl shadow-black/35 p-8 text-white">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-white mb-2">🤖TechnoBot</h1>
+            <p className="text-cyan-300">Your Technical Analysis Mentor!</p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-2 text-white/85">
+                Email
+              </label>
+              <input
+                suppressHydrationWarning
+                name="email"
+                autoComplete="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full rounded-lg px-4 py-2 border border-white/10 bg-white/10 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                placeholder="demo@technobot.com"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2 text-white/85">
+                Password
+              </label>
+              <input
+                suppressHydrationWarning
+                name="current-password"
+                autoComplete="current-password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full rounded-lg px-4 py-2 border border-white/10 bg-white/10 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                placeholder="demo123"
+                required
+              />
+            </div>
+
+            {error && (
+              <div className="bg-red-500/10 border border-red-400/30 rounded-lg p-3 text-sm text-red-200">
+                {error}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full rounded-lg py-2 font-medium text-slate-950 bg-cyan-300 hover:bg-cyan-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              {isLoading ? "Signing in..." : "Sign In"}
+            </button>
+          </form>
+
+          <div className="mt-6 pt-6 border-t border-white/10">
+            <p className="text-sm text-white/65 text-center mb-4">
+              Don't have an account?
+            </p>
+            <Link
+              href="/register"
+              className="block text-center text-cyan-300 hover:underline font-medium"
+            >
+              Create Account
+            </Link>
+          </div>
+
+          <div className="mt-8 pt-6 border-t border-white/10">
+            <p className="text-xs font-semibold text-white/60 mb-3">
+              DEMO CREDENTIALS:
+            </p>
+            <div className="space-y-3 text-xs">
+              <div>
+                <p className="font-medium text-white">
+                  Account 1: Demo Trader 📊
+                </p>
+                <p className="text-white/60">demo@technobot.com</p>
+                <p className="text-white/60">demo123</p>
+              </div>
+              <div>
+                <p className="font-medium text-white">
+                  Account 2: Chart Analyst 📈
+                </p>
+                <p className="text-white/60">trader@technobot.com</p>
+                <p className="text-white/60">trader123</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
